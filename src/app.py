@@ -22,10 +22,10 @@ df = pd.DataFrame({
 fig = px.bar(df, x="Fruit", y="Amount", color="City", barmode="group")
 
 app.layout = html.Div(children=[
-    html.H1(children='Hello Dash'),
+    html.H1(children='Hi there i am Najla'),
 
     html.Div(children='''
-        Dash: A web application framework for your data.
+        i hup your beha will change
     '''),
 
     dcc.Graph(

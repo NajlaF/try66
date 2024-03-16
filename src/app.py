@@ -13,7 +13,11 @@ server = app.server
 
 # assume you have a "long-form" data frame
 # see https://plotly.com/python/px-arguments/ for more options
-
+patients_data = pd.DataFrame({
+    "Patient": ["John", "Sarah", "Michael"],
+    "Condition": ["Flu", "Headache", "Fever"],
+    "Date": ["2022-01-01", "2022-02-15", "2022-03-10"]
+})
 app.layout = html.Div(children=[
     html.H1(children='Doctor Dashboard'),
     html.Table(

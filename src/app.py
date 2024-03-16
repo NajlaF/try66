@@ -19,7 +19,7 @@ patients_data = pd.DataFrame({
     "Date": ["2022-01-01", "2022-02-15", "2022-03-10"]
 })
 app.layout = html.Div(children=[
-    html.H1(children='Doctor Dashboard'),
+    html.H1(children='ى Dashboard'),
     html.Table(
         # Header
         [html.Tr([html.Th(col) for col in patients_data.columns])] +

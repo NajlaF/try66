@@ -29,6 +29,20 @@ app.layout = html.Div(children=[
          for i in range(len(patients_data))]
     )
 ])
+html_code = '''
+<html>
+<head>
+    <title>عنوان الصفحة</title>
+</head>
+<body>
+    <h1>مرحبًا بك في صفحة الويب</h1>
+    <p>هذا هو فقرة في صفحة HTML.</p>
+</body>
+</html>
+'''
+
+# يمكنك طباعة الكود HTML
+print(html_code)
 
 if __name__ == '__main__':
     app.run_server(debug=True)

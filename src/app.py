@@ -1,68 +1,109 @@
-'''
- # @ Create Time: 2024-03-17 00:43:05.269944
-'''
-
-from dash import Dash, html, dcc
-import plotly.express as px
+import dash
+import dash_bootstrap_components as dbc
 import pandas as pd
+import plotly.graph_objs as go
+from dash import Input, Output, dcc, html
+from sklearn.cluster import KMeans
+from datetime import datetime, timedelta
 
-app = Dash(__name__, title="try6")
+# بيانات الأمثلة
+data = [
+    {"date": datetime.now() - timedelta(days=7), "top_ten": 15},
+    {"date": datetime.now() - timedelta(days=6), "top_ten": 10},
+    {"date": datetime.now() - timedelta(days=5), "top_ten": 13},
+    {"date": datetime.now() - timedelta(days=4), "top_ten": 9},
+    {"date": datetime.now() - timedelta(days=3), "top_ten": 12},
+    {"date": datetime.now() - timedelta(days=2), "top_ten": 8},
+    {"date": datetime.now() - timedelta(days=1), "top_ten": 11},
+]
+
+df = pd.DataFrame(data)
+
+app = dash.Dash(
+    title="Dpage",
+    external_stylesheets=[dbc.themes.BOOTSTRAP],
+)
 
 # Declare server for Heroku deployment. Needed for Procfile.
 server = app.server
 
-# assume you have a "long-form" data frame
-# see https://plotly.com/python/px-arguments/ for more options
-patients_data = pd.DataFrame({
-    "Patient": ["John", "Sarah", "Michael"],
-    "Condition": ["Flu", "Headache", "Fever"],
-    "Date": ["2022-01-01", "2022-02-15", "2022-03-10"]
-})
-app.layout = html.Div(children=[
-    html.H1(children='نجلاء فهد '),
-    html.Table(
-        # Header
-        [html.Tr([html.Th(col) for col in patients_data.columns])] +
-
-        # Rows
-        [html.Tr([html.Td(patients_data.iloc[i][col]) for col in patients_data.columns])
-         for i in range(len(patients_data))]
-    )
-])
-
-# بيانات المريض
-patient_data = {
-    "اسم المريض": "جون",
-    "العمر": 30,
-    "الجنس": "ذكر",
-    # إضافة المزيد من المعلومات حسب الحاجة
-}
-
-# قائمة بأعلى 10 بروتينات ظهورًا
-top_proteins = [
-    "بروتين 1",
-    "بروتين 2",
-    "بروتين 3",
-    # إضافة المزيد من البروتينات حسب الحاجة
-]
-
-app.layout = html.Div(
-    children=[
-        html.H1(children='معلومات المريض'),
-        html.Table(
-            # بيانات المريض
-            [html.Tr([html.Th(key), html.Td(value)]) for key, value in patient_data.items()]
-        ),
-        html.H2(children='أعلى 10 بروتينات ظهورًا'),
-        html.Ul([html.Li(protein) for protein in top_proteins]),
+controls = dbc.Card(
+    [
         html.Div(
-            children=[
-                html.H3(children='سكور'),
-                html.Span('5')
+            [
+                dbc.Label("Date"),
+                dcc.Dropdown(
+                    id="date-variable",
+                    options=[
+                        {"label": date.strftime("%Y-%m-%d"), "value": date} for date in df["date"]
+                    ],
+                    value=df["date"].max(),
+                ),
             ]
-        )
-    ]
+        ),
+        html.Div(
+            [
+                dbc.Label("Top Ten"),
+                dcc.Dropdown(
+                    id="top-ten-variable",
+                    options=[
+                        {"label": row["date"].strftime("%Y-%m-%d"), "value": row["top_ten"]} for _, row in df.iterrows()
+                    ],
+                    value=df.loc[df["date"] == df["date"].max(), "top_ten"].values[0],
+                ),
+            ]
+        ),
+    ],
+    body=True,
 )
 
-if __name__ == '__main__':
-    app.run_server(debug=True)
+app.layout = dbc.Container(
+    [
+        html.H1("Top Ten Classification"),
+        html.Hr(),
+        dbc.Row(
+            [
+                dbc.Col(controls, md=4),
+                dbc.Col(dcc.Graph(id="classification-graph"), md=8),
+            ],
+            align="center",
+        ),
+    ],
+    fluid=True,
+)
+
+
+@app.callback(
+    Output("classification-graph", "figure"),
+    [
+        Input("date-variable", "value"),
+        Input("top-ten-variable", "value"),
+    ],
+)
+def make_graph(date, top_ten):
+    df_filtered = df.loc[df["date"] == date]
+
+    data = [
+        go.Scatter(
+            x=df_filtered["date"],
+            y=df_filtered["top_ten"],
+            mode="markers",
+            marker={"size": 8},
+            name="Top Ten",
+        ),
+        go.Scatter(
+            x=[date],
+            y=[top_ten],
+            mode="markers",
+            marker={"color": "#000", "size": 12, "symbol": "diamond"},
+            name="Selected Top Ten",
+        )
+    ]
+
+    layout = {"xaxis": {"title": "Date"}, "yaxis": {"title": "Top Ten"}}
+
+    return go.Figure(data=data, layout=layout)
+
+
+if __name__ == "__main__":
+    app.run_server(debug=True, port=8050)

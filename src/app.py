@@ -29,20 +29,40 @@ app.layout = html.Div(children=[
          for i in range(len(patients_data))]
     )
 ])
-html_code = '''
-<html>
-<head>
-    <title>عنوان الصفحة</title>
-</head>
-<body>
-    <h1>مرحبًا بك في صفحة الويب</h1>
-    <p>هذا هو فقرة في صفحة HTML.</p>
-</body>
-</html>
-'''
 
-# يمكنك طباعة الكود HTML
-print(html_code)
+# بيانات المريض
+patient_data = {
+    "اسم المريض": "جون",
+    "العمر": 30,
+    "الجنس": "ذكر",
+    # إضافة المزيد من المعلومات حسب الحاجة
+}
+
+# قائمة بأعلى 10 بروتينات ظهورًا
+top_proteins = [
+    "بروتين 1",
+    "بروتين 2",
+    "بروتين 3",
+    # إضافة المزيد من البروتينات حسب الحاجة
+]
+
+app.layout = html.Div(
+    children=[
+        html.H1(children='معلومات المريض'),
+        html.Table(
+            # بيانات المريض
+            [html.Tr([html.Th(key), html.Td(value)]) for key, value in patient_data.items()]
+        ),
+        html.H2(children='أعلى 10 بروتينات ظهورًا'),
+        html.Ul([html.Li(protein) for protein in top_proteins]),
+        html.Div(
+            children=[
+                html.H3(children='سكور'),
+                html.Span('5')
+            ]
+        )
+    ]
+)
 
 if __name__ == '__main__':
     app.run_server(debug=True)
